@@ -69,7 +69,7 @@ const Home: NextPage<InferGetServerSidePropsType<typeof getStaticProps>> = (
   return (
     <div className="font-serif min-h-screen">
       <Head>
-        <title>Pepperoni Swap</title>
+        <title>Pepperoni Finance</title>
       </Head>
       <Header></Header>
       <div className="flex justify-center sm:pb-10 pb-4">
