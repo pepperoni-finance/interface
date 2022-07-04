@@ -4,6 +4,8 @@ import { Icon } from "../../constants/icons";
 import { useUniverseStore } from "../../hooks/useUniverseStore";
 import styled from "styled-components";
 import tw from "twin.macro";
+import { useModal } from "../../hooks/useModal";
+import { Modal } from "../Modal";
 
 const Button = styled.button(
   () => tw`
@@ -18,18 +20,19 @@ const Button = styled.button(
 );
 
 export function Connect() {
-  const { isActive, connector } = useWeb3React();
+  const { connector } = useWeb3React();
   const { networks } = useUniverseStore();
+  const { close, open, isOpen } = useModal("walletNotInjected");
 
   const onClick = useCallback(() => {
-    connector.activate({
-      supportedChainIds: networks.map((it) => it.chainId),
-    });
-  }, [connector, networks]);
-
-  if (isActive) {
-    return null;
-  }
+    if (!window.ethereum) {
+      open({});
+    } else {
+      connector.activate({
+        supportedChainIds: networks.map((it) => it.chainId),
+      });
+    }
+  }, [connector, networks, open]);
 
   return (
     <div className="bg-white shadow-md rounded-3xl p-3 border border-gray-100">
@@ -38,6 +41,30 @@ export function Connect() {
         <p>Connect your wallet in order to use this application.</p>
       </div>
       <Button onClick={onClick}>Connect Wallet</Button>
+      <Modal onClose={close} open={isOpen}>
+        <div className="flex flex-col rounded-3xl bg-white w-full">
+          <div className="border-b border-gray-100">
+            <div className="m-5 mb-2 flex">
+              <div className="ml-8 grow text-lg text-center">
+                Wallet not found
+              </div>
+              <button
+                className="hover:bg-red-700 hover:text-white rounded-2xl px-1 w-8 h-8"
+                onClick={close}
+              >
+                {Icon.Delete}
+              </button>
+            </div>
+          </div>
+          <div className="mb-2 mx-2">
+            <div className="m-5 flex align-middle justify-center text-center">
+              Unable to find injected Ethereum wallet. You need to install one
+              before start.
+            </div>
+            <Button onClick={close}>OK</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
